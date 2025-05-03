@@ -1,34 +1,48 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2 } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import type { Build } from "@/lib/types"
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import type { Build } from "@/lib/types";
 
 const formSchema = z.object({
   repository: z.string().min(1, { message: "Repository is required" }),
   branch: z.string().min(1, { message: "Branch is required" }),
   environment: z.string().min(1, { message: "Environment is required" }),
-  cacheEnabled: z.boolean().default(true),
+  cacheEnabled: z.boolean().optional(),
   installCommand: z.string().optional(),
   buildCommand: z.string().min(1, { message: "Build command is required" }),
-})
+});
 
 interface NewBuildFormProps {
-  onBuildCreated: (build: Build) => void
+  onBuildCreated: (build: Build) => void;
 }
 
 export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,10 +54,10 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
       installCommand: "npm install",
       buildCommand: "npm run build",
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/builds", {
@@ -52,30 +66,30 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to create build")
+        throw new Error("Failed to create build");
       }
 
-      const build = await response.json()
+      const build = await response.json();
 
       toast({
         title: "Build created",
         description: `Build for ${values.repository} has been queued`,
-      })
+      });
 
-      onBuildCreated(build)
-      form.reset()
+      onBuildCreated(build);
+      form.reset();
     } catch (error) {
-      console.error("Error creating build:", error)
+      console.error("Error creating build:", error);
       toast({
         title: "Error",
         description: "Failed to create build. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -91,7 +105,9 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
               <FormControl>
                 <Input placeholder="username/repository" {...field} />
               </FormControl>
-              <FormDescription>Enter the GitHub repository name</FormDescription>
+              <FormDescription>
+                Enter the GitHub repository name
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -118,7 +134,10 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Environment</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select environment" />
@@ -160,7 +179,9 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
               <FormControl>
                 <Input {...field} />
               </FormControl>
-              <FormDescription>Command to build your application</FormDescription>
+              <FormDescription>
+                Command to build your application
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -172,11 +193,16 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
               <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>Enable Build Cache</FormLabel>
-                <FormDescription>Cache dependencies to speed up builds</FormDescription>
+                <FormDescription>
+                  Cache dependencies to speed up builds
+                </FormDescription>
               </div>
             </FormItem>
           )}
@@ -194,5 +220,5 @@ export function NewBuildForm({ onBuildCreated }: NewBuildFormProps) {
         </Button>
       </form>
     </Form>
-  )
+  );
 }

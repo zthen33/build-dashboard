@@ -5,7 +5,7 @@ export function getBuildStatusBadge(status: BuildStatus) {
   switch (status) {
     case "success":
       return (
-        <Badge variant="success" className="text-sm px-3 py-1">
+        <Badge className="bg-green-500 hover:bg-green-600 text-sm px-3 py-1">
           Success
         </Badge>
       )
